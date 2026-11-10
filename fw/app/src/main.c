@@ -6,7 +6,7 @@
  *    by the 100 Hz timer from the encoder capture (QTMR/ENC) and the SPI IMU; the Renode
  *    model has neither, so the rig (sim/rig.py) sends the sampled front end as frames.
  *  - recorder thread: one odo_unit_tick per sample
- *  - power-fail comparator on GPIO2_IO00 (falling edge = supply lost): the ISR wakes the
+ *  - power-fail comparator on GPIO2_IO00 (low = supply lost, level interrupt): the ISR wakes the
  *    highest-priority thread, which writes the power-fail record to FRAM at once
  *  - FRAM: 128 KiB array here (SPI FRAM on the target), accessed through odo_nvm_t
  *
@@ -110,6 +110,8 @@ static void pf_isr(const struct device *dev, struct gpio_callback *cb, uint32_t 
 	ARG_UNUSED(cb);
 	ARG_UNUSED(pins);
 	pf_t0 = k_cycle_get_32();
+	/* level interrupt: masked here, re-armed by the thread when the supply is back */
+	(void)gpio_pin_interrupt_configure_dt(&pfi, GPIO_INT_DISABLE);
 	k_sem_give(&pf_sem);
 }
 
@@ -120,14 +122,18 @@ static void pf_thread(void *a, void *b, void *c)
 	ARG_UNUSED(c);
 	for (;;) {
 		k_sem_take(&pf_sem, K_FOREVER);
-		const bool ok = gpio_pin_get_dt(&pfi) == 0;
-
 		k_mutex_lock(&unit_lock, K_FOREVER);
-		odo_unit_power(&unit, ok);
+		odo_unit_power(&unit, false);
 		k_mutex_unlock(&unit_lock);
-		if (!ok) {
-			odo_diag_pf_cyc = k_cycle_get_32() - pf_t0;
+		odo_diag_pf_cyc = k_cycle_get_32() - pf_t0;
+		/* supply lost: the interrupt stays masked; the return is polled every millisecond */
+		while (gpio_pin_get_dt(&pfi) != 0) {
+			k_msleep(1);
 		}
+		k_mutex_lock(&unit_lock, K_FOREVER);
+		odo_unit_power(&unit, true);
+		k_mutex_unlock(&unit_lock);
+		(void)gpio_pin_interrupt_configure_dt(&pfi, GPIO_INT_LEVEL_ACTIVE);
 	}
 }
 
@@ -244,7 +250,7 @@ int main(void)
 	static const odo_cfg_t none = {{0.0f, 0.0f}, 0U};
 	int err = gpio_pin_configure_dt(&pfi, GPIO_INPUT);
 
-	err |= gpio_pin_interrupt_configure_dt(&pfi, GPIO_INT_EDGE_BOTH);
+	err |= gpio_pin_interrupt_configure_dt(&pfi, GPIO_INT_LEVEL_ACTIVE);
 	gpio_init_callback(&pf_cb, pf_isr, BIT(pfi.pin));
 	err |= gpio_add_callback(pfi.port, &pf_cb);
 	if ((err != 0) || !device_is_ready(uart)) {

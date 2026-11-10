@@ -327,7 +327,7 @@ when cost and upkeep get most of the weight); no ±10 % change of any single wei
 | Option | What it does in the brake | p95 all conditions | Why it is (not) chosen |
 |---|---|---|---|
 | E3 (chosen) | no wheel updates; IMU integral from v0; boundary correction v(T) = 0; pitch gyro for gravity | **14.7 cm** | best in every condition |
-| E3h | as E3, but the wheel distance when no slide is seen | worse: the braking creep (2 % wet) is not a slide (S3) | rejected (D3) |
+| E3h | as E3, but the wheel distance when no slide is seen | 1.02 m (wet 1.36 m; dry 9.9 cm against 6.4 cm) | rejected (D3): the braking creep (2 % wet) is not a slide and is not seen |
 | E3g | wheels used whenever the gate accepts them | 73 cm | small slides inside the gate add up |
 | E3a | E3 without the gyro | 1.9 m | gravity changes on vertical curves and under body pitch |
 | E5 | E3 + radar updates | 30 cm | the radar's ±0.5 % scale replaces the boundary information |
@@ -379,7 +379,8 @@ drawn from the data-sheet ranges.
 | E2 two wheel sensors (larger increment) | 0.54 m | 2.87 m | 5.58 m | 6 % | 21 m |
 | E4 Doppler radar | 9.2 cm | 27 cm | 34 cm | 30 % | 7.9 m |
 | **E3 wheels + IMU (chosen)** | **3.0 cm** | **14.7 cm** | **28.6 cm** | **66 %** | **3.0 m** |
-| E3a without the gyro | 13 cm | 1.89 m | 89 m | 20 % | 3.9 m |
+| E3h E3, wheel distance when no slide is seen | 6.4 cm | 1.02 m | 1.67 m | 41 % | 3.2 m |
+| E3a without the gyro | 13 cm | 1.89 m | 89 m (standstill not confirmed) | 20 % | 3.9 m |
 | E3g wheels used when gated in | 24 cm | 73 cm | 1.19 m | 21 % | 3.0 m |
 | E5 E3 + radar | 10 cm | 30 cm | 47 cm | 30 % | 2.8 m |
 
@@ -388,8 +389,8 @@ By rail condition (p95): E1 0.11 m dry, 1.69 m wet, 5.3 m dry leaves, 5.2 m wet 
 
 ![By condition](docs/img/s3_by_condition.png)
 
-One emergency brake on wet leaves (WSP cycling, both bogies sliding): the one-sensor distance drifts to
-−2.9 m, the E3 corrected profile stays within 0.1 m.
+One emergency brake on wet leaves (WSP cycling on both bogies): within 5 s the one-sensor distance falls
+0.9 m short; the E3 corrected profile stays within 0.1 m.
 
 ![Slide trace](docs/img/s2_slide_trace.png)
 
@@ -521,7 +522,7 @@ vehicle and laboratory measurements that would validate them.
 |---|---|---|
 | D1 | Brake distance from the IMU with a two-point boundary correction, not from the wheels | S3: E3 p95 14.7 cm against E1 4.83 m |
 | D2 | A pitch gyro is part of the sensor set | S3: E3a (no gyro) p95 1.89 m; vertical curves and body pitch change gravity along the car |
-| D3 | No wheel distance in the brake, also without a seen slide (E3h rejected) | S1: braking creep 2 % wet; E3h worse in every condition |
+| D3 | No wheel distance in the brake, also without a seen slide (E3h rejected) | S1: braking creep 2 % wet; S3: E3h p95 1.02 m against 14.7 cm, worse in every condition |
 | D4 | A wheel at rest gives no speed measurement; standstill updates only while \|f − c\| < 0.15 m/s² | found by the models: at departure the first edges come late and pulled the filter to 0 |
 | D5 | The brake-demand edge is captured with its time | 10 ms = 19 cm at 70 km/h; IT02 inside 5 cm |
 | D6 | Standstill = end of the deceleration, confirmed by wheel rest and the inertial speed | locked wheels on leaves stop turning before the tram stops |

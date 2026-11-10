@@ -94,7 +94,7 @@ def run():
     ax.set_yticklabels(["%s %s" % (a[0], a[1]) for a in ALTS], fontsize=7.5)
     ax.invert_yaxis()
     ax.set_xlabel("weighted score (0-10)")
-    ax.legend(fontsize=6.5, loc="lower right")
+    ax.legend(fontsize=6.5, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2)
     ax.set_title("Weighted scores")
     ax = axs[1]
     ax.bar([a[0] for a in ALTS], wins * 100, color="#2a6f97")

@@ -59,14 +59,14 @@ It is a portfolio and thesis-preparation project, not a product, and not certifi
 | Firmware against the Python reference | equal within 2 mm on all four scenarios (float32 against float64) |
 | MISRA C:2012 (`fw/scripts/misra.sh`, cppcheck addon) | no findings outside deviation D1 ([fw/docs/misra.md](fw/docs/misra.md)) |
 | Traceability (`fw/tools/trace.py`) | 33/33 software requirements of [fw/SRS.md](fw/SRS.md) traced to existing tests |
-| Renode IT01–IT08 (`fw/scripts/test-sim.sh`) | IT_PASS |
-| IT02 depot brake test (dry, 40 km/h, 24.2 m) | IT02_RES (one wheel sensor −11 mm) |
-| IT03 wet leaves, slide for the whole brake (72.1 m) | IT03_RES (one wheel sensor −5.15 m) |
-| IT04 sag curve −5 % → 0 % during the brake (70.2 m) | IT04_RES (one wheel sensor −3.10 m) |
-| IT05 10 ms supply interruption (EN 50155 S2) | power-fail record in FRAM IT05_US µs after the comparator edge; no sample lost |
-| IT06 supply cut, record torn half-way | recovery keeps every complete record; the newest is the power-fail record |
-| IT07 calibration over two marks 100 m apart | diameters IT07_RES |
-| IT08 timing and bad frames | worst sample IT08_US µs of the 10 ms period; corrupted frames rejected and counted |
+| Renode IT01–IT08 (`fw/scripts/test-sim.sh`) | 8/8 pass, in CI on every push |
+| IT02 depot brake test (dry, 40 km/h, 24.2 m) | **+7.5 mm** (one wheel sensor −11 mm) |
+| IT03 wet leaves, slide for the whole brake (72.1 m) | **+64 mm** (one wheel sensor −5.15 m) |
+| IT04 sag curve −5 % → 0 % during the brake (70.2 m) | **−131 mm** (one wheel sensor −3.10 m) |
+| IT05 10 ms supply interruption (EN 50155 S2) | power-fail record in FRAM **16 µs** after the comparator edge; no sample lost; brake result −79 mm (49.4 m) |
+| IT06 supply cut, record torn half-way | recovery keeps all 726 complete records; the newest valid one is the power-fail record |
+| IT07 calibration over two marks 100 m apart | diameters to **−18 µm and +4 µm** (0.003 %) |
+| IT08 timing and bad frames | worst sample **63 µs** of the 10 ms period (0.6 %); 47 corrupted frames of 4641 rejected and counted, brake still recorded |
 
 ![Slide trace: wheels against the vehicle on wet leaves](docs/img/s2_slide_trace.png)
 

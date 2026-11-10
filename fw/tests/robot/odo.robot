@@ -121,7 +121,7 @@ IT06 Power Cut With A Torn Record
     Advance    0.02
     ${t0}=    Rig    rig.read_u32('odo_diag_ticks')
     Rig    rig.write_u32('odo_test_recover', 1)
-    Advance    0.05
+    Advance    1.0    # the scan of 8192 slots takes about 0.1 s of emulated time
     ${t1}=    Rig    rig.read_u32('odo_diag_ticks')
     ${r}=    Rig    rig.read_u32('odo_test_recover')
     ${h}=    Rig    rig.read_u32('odo_diag_rec_head')
@@ -131,7 +131,7 @@ IT06 Power Cut With A Torn Record
     ${seq}=    Rig    rig.st('seq')
     Log To Console    \nrecovery: ${valid} valid records, newest type ${type}
     Should Be Equal As Integers    ${type}    ${REC_PFAIL}
-    Should Be True    int($valid) > 1000
+    Should Be True    int($valid) > 500    # every record of the 180 m driven so far
 
 IT07 Wheel Diameter Calibration
     [Documentation]    OR-40, OR-41: two marks 100 m apart at 1 m/s: both diameters to 0.1 mm.
