@@ -1,0 +1,5 @@
+# MISRA C:2012 deviations for lib/odo (cppcheck suppression list); see fw/docs/misra.md.
+# D1 - Rule 2.5 (advisory): unused macro. odo.h is the public interface and the frame protocol;
+#      its command codes are used by the application, the tests and the rig, outside the
+#      analysed file set.
+misra-c2012-2.5:*lib/odo/include/odo/odo.h

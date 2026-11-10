@@ -1,0 +1,102 @@
+{
+  "criteria": [
+    {
+      "name": "brake distance under slide (p95)",
+      "weight": 0.3
+    },
+    {
+      "name": "last-1500 m distance (p95)",
+      "weight": 0.15
+    },
+    {
+      "name": "unit cost",
+      "weight": 0.15
+    },
+    {
+      "name": "installation and upkeep",
+      "weight": 0.15
+    },
+    {
+      "name": "availability (degraded modes)",
+      "weight": 0.15
+    },
+    {
+      "name": "software assurance effort",
+      "weight": 0.1
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "A1",
+      "name": "one wheel sensor",
+      "scores": [
+        4.04,
+        5.99,
+        10.0,
+        10.0,
+        3.0,
+        9.0
+      ],
+      "total": 6.462,
+      "win_fraction": 0.2882
+    },
+    {
+      "id": "A2",
+      "name": "two wheel sensors",
+      "scores": [
+        4.73,
+        4.23,
+        9.0,
+        9.0,
+        6.0,
+        8.0
+      ],
+      "total": 6.452,
+      "win_fraction": 0.0051
+    },
+    {
+      "id": "A3",
+      "name": "two wheel sensors + IMU",
+      "scores": [
+        8.6,
+        6.75,
+        8.0,
+        9.0,
+        8.0,
+        6.0
+      ],
+      "total": 7.942,
+      "win_fraction": 0.7014
+    },
+    {
+      "id": "A4",
+      "name": "wheel sensor + Doppler radar",
+      "scores": [
+        7.79,
+        5.51,
+        4.0,
+        4.0,
+        6.0,
+        7.0
+      ],
+      "total": 5.964,
+      "win_fraction": 0.0001
+    },
+    {
+      "id": "A5",
+      "name": "two wheel sensors + IMU + radar",
+      "scores": [
+        7.66,
+        6.84,
+        3.0,
+        4.0,
+        9.0,
+        4.0
+      ],
+      "total": 6.124,
+      "win_fraction": 0.0052
+    }
+  ],
+  "winner": "A3",
+  "single_weight_flips": []
+}

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+mainmenu "Tram speed and event recorder"
+
+config ODO_TEST_HOOKS
+	bool "Test hooks"
+	help
+	  Adds the hooks the Renode rig uses through the ELF symbols: a torn FRAM
+	  write (power lost in the middle of a record) and a journal recovery run
+	  on demand, as the boot code would run it. Test image only (test.conf).
+
+source "Kconfig.zephyr"

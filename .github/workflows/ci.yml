@@ -1,0 +1,115 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # Models: unit tests against sources and independent calculations; the studies at reduced size.
+  model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -q -r requirements.txt
+      - name: Lint
+        run: ruff check model fw/tools fw/sim tools
+      - name: Model tests
+        run: python -m pytest -q model/tests
+      - name: Studies, reduced Monte-Carlo sizes (the committed figures use the full sizes)
+        env:
+          ODO_QUICK: "1"
+        run: python model/run_all.py s1 s3 s4 s5 s6 s7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studies
+          path: |
+            docs/img/
+            results/
+
+  # Odometry library: unit tests (incl. recorded scenarios) with 100 % statement/branch/MC/DC
+  # gates, MISRA, traceability.
+  host:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends gcc-14 cppcheck
+      - name: Unit tests + coverage gate
+        env:
+          ODO_COV_ARGS: --min-line 100 --min-branch 100 --min-cond 100
+        run: bash fw/scripts/test-host.sh
+      - name: MISRA C:2012 (documented deviations only)
+        run: bash fw/scripts/misra.sh
+      - name: Requirement traceability
+        run: python3 fw/tools/trace.py
+
+  # Firmware: build the images for the RT1064 and run the Renode integration tests.
+  firmware:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      TRAM_WS: ${{ github.workspace }}
+      TRAM_VENV: ${{ github.workspace }}/venv
+      TRAM_ROBOT_OUT: ${{ github.workspace }}/robot-out
+      RENODE_VERSION: "1.17.0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tram-odo
+      - name: System packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget \
+            python3-dev python3-venv xz-utils file make gcc libmagic1
+      - name: Python venv
+        run: |
+          python3 -m venv "$TRAM_VENV"
+          "$TRAM_VENV/bin/pip" install -q --upgrade pip
+          "$TRAM_VENV/bin/pip" install -q -r tram-odo/requirements.txt
+      - name: Cache Zephyr and SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.west
+            ${{ github.workspace }}/zephyr
+            ${{ github.workspace }}/modules
+            ~/zephyr-sdk-*
+          key: zephyr-nxp-${{ hashFiles('tram-odo/fw/west.yml') }}-v1
+      - name: West workspace and SDK
+        run: |
+          source "$TRAM_VENV/bin/activate"
+          cd "$TRAM_WS"
+          [ -d .west ] || west init -l --mf fw/west.yml tram-odo
+          west update -n -o=--depth=1
+          west packages pip --install
+          ls -d ~/zephyr-sdk-* >/dev/null 2>&1 || west sdk install -t arm-zephyr-eabi
+      - name: Build firmware (field image)
+        run: TRAM_IMAGE=field TRAM_BUILD="$TRAM_WS/build/field" bash tram-odo/fw/scripts/build.sh
+      - name: Build firmware (test image)
+        run: bash tram-odo/fw/scripts/build.sh
+      - name: Install Renode
+        run: |
+          mkdir -p "$HOME/renode"
+          wget -q -O /tmp/renode.tgz \
+            "https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz"
+          tar -xzf /tmp/renode.tgz -C "$HOME/renode" --strip-components=1
+          echo "$HOME/renode" >> "$GITHUB_PATH"
+          "$TRAM_VENV/bin/pip" install -q -r "$HOME/renode/tests/requirements.txt"
+      - name: Integration tests (Robot Framework in Renode)
+        run: bash tram-odo/fw/scripts/test-sim.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: renode-reports
+          path: |
+            ${{ github.workspace }}/robot-out/
+            ${{ github.workspace }}/build/tram/zephyr/zephyr.elf
+          if-no-files-found: warn

@@ -1,0 +1,14 @@
+:name: Tram recorder
+:description: tram speed and event recorder firmware on the MIMXRT1064-EVK model.
+
+# Required: $elf (path to zephyr.elf). The scripts and the Robot tests set it.
+
+$name?="odo"
+mach create $name
+machine LoadPlatformDescription $ORIGIN/odo_board.repl
+
+# 50 us quantum: the rig sends one sensor frame per 10 ms of virtual time.
+emulation SetGlobalQuantum "0.00005"
+
+sysbus LoadELF $elf
+cpu VectorTableOffset `sysbus GetSymbolAddress "_vector_table"`

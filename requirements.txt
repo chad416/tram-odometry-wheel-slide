@@ -1,0 +1,8 @@
+# Python packages for the models, tests, firmware build and lint.
+# Robot Framework comes with Renode: pip install -r <renode>/tests/requirements.txt
+numpy==2.5.3
+scipy==1.18.1
+matplotlib==3.11.2
+pytest==9.1.1
+west==1.5.0
+ruff==0.14.2

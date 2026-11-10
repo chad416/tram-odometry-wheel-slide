@@ -1,0 +1,13 @@
+// Recorder platform for Renode: Renode's MIMXRT1064-EVK model with two fixes.
+
+using "platforms/boards/mimxrt1064_evk.repl"
+
+// FIX: Zephyr runs the RT1064 core (and SysTick) at 600 MHz. Renode's default
+// is 72 MHz, which would make firmware time run 8.3x slower than virtual time.
+nvic:
+    systickFrequency: 600000000
+
+// The GPIO2 model has one combined interrupt output; the power-fail comparator
+// is on pin 0, so it goes to GPIO2_Combined_0_15 (IRQ 82).
+gpio2:
+    IRQ -> nvic@82

@@ -1,0 +1,25 @@
+/*
+ * Recorder I/O on the MIMXRT1064-EVK.
+ * SPDX-License-Identifier: MIT
+ */
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	chosen {
+		odo,sensor-uart = &lpuart3; /* sensor frames in, status out (rig) */
+	};
+
+	zephyr,user {
+		/* power-fail comparator on the 24 V input, low = supply lost */
+		pfi-gpios = <&gpio2 0 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&lpuart3 {
+	status = "okay";
+	current-speed = <115200>;
+};

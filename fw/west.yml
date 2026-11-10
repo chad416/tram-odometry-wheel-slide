@@ -1,0 +1,18 @@
+# West manifest (T2 topology): this repository is the manifest repository; the
+# manifest lives in fw/ (west init -l --mf fw/west.yml <checkout>).
+# Zephyr pinned to the revision used by the author's other Zephyr projects;
+# only the NXP HAL and CMSIS are fetched.
+manifest:
+  self:
+    path: tram-odo
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: c605ea46e15fb9bdd518670258a8a52d8850d8f4
+      import:
+        name-allowlist:
+          - cmsis_6
+          - hal_nxp

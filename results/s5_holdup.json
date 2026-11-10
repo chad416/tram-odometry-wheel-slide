@@ -1,0 +1,33 @@
+{
+  "ring_bytes": 96000,
+  "options": [
+    {
+      "name": "FRAM ring",
+      "t_finish_s": 5.64e-05,
+      "S2": {
+        "energy_J": 0.0301692,
+        "C_input_uF": 352.74474727279124,
+        "C_supercap_F": 0.0037859388235294117
+      },
+      "S3": {
+        "energy_J": 0.0601692,
+        "C_input_uF": 703.5111719106251,
+        "C_supercap_F": 0.007550644705882353
+      }
+    },
+    {
+      "name": "SD card only (RAM ring flushed)",
+      "t_finish_s": 1.25,
+      "S2": {
+        "energy_J": 4.1925,
+        "C_input_uF": 49019.60784313727,
+        "C_supercap_F": 0.5261176470588235
+      },
+      "S3": {
+        "energy_J": 4.222499999999999,
+        "C_input_uF": 49370.3742677751,
+        "C_supercap_F": 0.5298823529411764
+      }
+    }
+  ]
+}
